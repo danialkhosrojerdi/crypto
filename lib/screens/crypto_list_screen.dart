@@ -2,7 +2,6 @@ import 'package:crypto_chand/data/constants/constants.dart';
 import 'package:crypto_chand/data/model/crypto.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-
 import '../data/constants/constants.dart';
 import '../data/model/crypto.dart';
 
@@ -44,6 +43,9 @@ class _CryptoListScreenState extends State<CryptoListScreen> {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: TextField(
+              onChanged: (value) {
+                _searchList(value);
+              },
               style: TextStyle(color: Colors.white),
               decoration: InputDecoration(
                   alignLabelWithHint: true,
@@ -151,5 +153,27 @@ class _CryptoListScreenState extends State<CryptoListScreen> {
         .map<Crypto>((jsonMapObject) => Crypto.fromMapJason(jsonMapObject))
         .toList();
     return cryptoList;
+  }
+
+  Future<void> _searchList(String query) async {
+    List<Crypto> cryptoResultList = [];
+
+    if (query.isEmpty) {
+      var result = await _getData();
+      setState(() {
+        cryptoList = result;
+      });
+      return;
+    }
+
+    cryptoResultList = cryptoList!.where(
+      (element) {
+        return element.name.toLowerCase().contains(query.toLowerCase());
+      },
+    ).toList();
+
+    setState(() {
+      cryptoList = cryptoResultList;
+    });
   }
 }
